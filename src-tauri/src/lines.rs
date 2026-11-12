@@ -20,10 +20,11 @@ const MIRROR_MAX: usize = 60;
 const PROBE_TIMEOUT: Duration = Duration::from_secs(8);
 
 pub fn fixed() -> Value {
-    json!(FIXED
-        .iter()
-        .map(|(name, url)| json!({ "name": name, "url": url }))
-        .collect::<Vec<_>>())
+    let mut lines = FIXED.iter().map(|(name, url)| json!({ "name": name, "url": url })).collect::<Vec<_>>();
+    if let Some(url) = option_env!("HGHUB_PRIVATE_LINE").filter(|url| !url.is_empty()) {
+        lines.push(json!({ "name": "备用线路（游客）", "url": url }));
+    }
+    json!(lines)
 }
 
 /// 拉地址发布页 → 解析 publish.js → 拼出镜像地址。只在用户点开「线路」时调用。
